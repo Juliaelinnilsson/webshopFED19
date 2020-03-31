@@ -41,14 +41,10 @@ router.get(adminROUTE.welcome, (req, res) => {
 
 // admin login \\
 router.get(adminROUTE.login, async (req, res) => {
-    const admin = await new Admin({ // Detta är vår hårdkodade Admin som behövs för första test om vi tar bort huvudadmin. 
-        email: "admin@websurfers.com",
-        password: "admin"
-    }).save();
-    const errorMessage = ""
-    res.render(adminVIEW.login, {
-        errorMessage
-    });
+    // const errorMessage = ""
+    // res.render(adminVIEW.login, {
+    //     errorMessage
+    // });
 });
 
 router.post(adminROUTE.login, async (req, res) => {
