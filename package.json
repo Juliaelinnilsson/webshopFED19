@@ -16,14 +16,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/stefanhallberg123/webshop.git"
+    "url": "git+https://github.com/Juliaelinnilsson/webshopFED19.git"
   },
   "author": "Stefan Hallberg, Emma Teo, Isabelle Edlund, Josefin Ljung, Julia Nilsson",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/stefanhallberg123/webshop/issues"
+    "url": "https://github.com/Juliaelinnilsson/webshopFED19/issues"
   },
-  "homepage": "https://github.com/stefanhallberg123/webshop#readme",
+  "homepage": "https://github.com/Juliaelinnilsson/webshopFED19#readme",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
