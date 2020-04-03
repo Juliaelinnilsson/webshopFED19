@@ -9,6 +9,9 @@ const crypto = require("crypto");
 const verifyToken = require("./verifyToken");
 const sendGridTransport = require("nodemailer-sendgrid-transport");
 const config = require("../config/config");
+//require dotenv
+//
+const stripe = require('stripe')(process.env.SECRETKEY);
 
 
 // middleware  \\
@@ -44,7 +47,11 @@ const userROUTE = {
     prodgenerator: "/prodgenerator",
     wishlist: "/wishlist",
     wishlistid: "/wishlist/:id",
-    deletewishlist: "/deletewishlist/:id"
+    deletewishlist: "/deletewishlist/:id",
+    orderlist: "/orderlist",
+    orderlistid: "/orderlist/:id",
+    deleteorderlist: "/deleteorderlist/:id",
+    order: '/order'
 };
 
 const userVIEW = {
@@ -61,7 +68,7 @@ const userVIEW = {
     reset: "reset",
     resetform: "resetform",
     wishlist: "wishlist",
-
+    orderlist: "orderlist",
     prodgenerator: "/partial/prodgenerator"
 };
 
@@ -163,14 +170,14 @@ router.get(userROUTE.welcome, (req, res) => {
 // customer wishlist \\
 router.get(userROUTE.wishlist, verifyToken, async (req, res) => {
     const user = await User.findOne({ _id: req.body.user._id }).populate("wishlist.productId")
-    console.log(user)
+
     res.render(userVIEW.wishlist, { user });
 });
 
 router.get(userROUTE.wishlistid, verifyToken, async (req, res) => {
     const product = await productItem.findOne({ _id: req.params.id })
     const user = await User.findOne({ _id: req.body.user._id })
-    console.log(req.body.user)
+
     await user.addToWishlist(product)
     res.redirect(userROUTE.wishlist);
 });
@@ -181,6 +188,61 @@ router.get(userROUTE.deletewishlist, verifyToken, async (req, res) => {
     user.removeFromList(req.params.id)
     res.redirect(userROUTE.wishlist);
 });
+
+// orderlist \\ 
+
+router.get(userROUTE.orderlist, verifyToken, async (req, res) => {
+    const user = await User.findOne({ _id: req.body.user._id }).populate("orderlist.productId")
+
+    res.render(userVIEW.orderlist, { user });
+});
+
+router.get(userROUTE.orderlistid, verifyToken, async (req, res) => {
+    const product = await productItem.findOne({ _id: req.params.id })
+    const user = await User.findOne({ _id: req.body.user._id })
+
+    await user.addToOrderlist(product)
+    res.redirect(userROUTE.orderlist);
+});
+
+router.get(userROUTE.deleteorderlist, verifyToken, async (req, res) => {
+    const user = await User.findOne({ _id: req.body.user._id })
+    console.log(user)
+    user.removeFromList(req.params.id)
+    res.redirect(userROUTE.orderlist);
+});
+
+//order checkout\\
+
+router.get(userROUTE.order, verifyToken, async (req, res) => {
+    const user = await User.findOne({ _id: req.body.user._id }).populate("orderlist.productId")
+
+    return stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        line_items: user.orderlist.map((product) => {
+            return {
+                name: product.productId.title,
+                amount: product.productId.price * 100, //öre *100 = 1 kronor
+                quantity: 1,
+                currency: "sek"
+            }
+        }),
+        // :// = efter http  
+        //req.get("Host") = localhost eller heroku etc
+        //success_url: req.protocol + "://" + req.get("Host") + "/",
+        //cancel_url: "http://localhost:8003/products"
+
+
+        // skriv in heroku adresserna
+        success_url: 'http://localhost:8003', //vilken sida man ska skickas till vid köp
+        cancel_url: "http://localhost:8003/product" // vilken sida man ska skickas till vad misslyckat köp 
+    }).then((session) => {
+        res.render(userVIEW.checkout, { user, sessionId: session.id })
+    })
+
+});
+
+
 
 // customer settings \\
 router.get(userROUTE.settings, (req, res) => {
@@ -197,7 +259,7 @@ router.post(userROUTE.settings, async (req, res) => {
         user.city = req.body.city,
         user.password = req.body.password,
         user.confpassword = req.body.confpassword
-    console.log(user);
+
     await user.save();
 });
 
@@ -259,5 +321,10 @@ router.post(userROUTE.resetform, async (req, res) => {
 
     res.redirect(userROUTE.login)
 });
+
+
+
+
+
 
 module.exports = router;

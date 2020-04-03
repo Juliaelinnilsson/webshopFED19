@@ -3,10 +3,10 @@
 
 <div class="row justify-content-center" id="title_admin">
     <div class="col-12 col-md-7 col-lg-5">
-        <h1>MY WISHLIST</h1>
+        <h1>SHOPPING BAG</h1>
     </div>
 </div>
-<% user.wishlist.forEach((product) => {%>
+<% user.orderlist.forEach((product) => {%>
 <div class="row justify-content-center mb-2">
     <div class="col-12 col-md-7 col-lg-6 backgroundrec">
         <div class="row fullheight">
@@ -24,7 +24,7 @@
                         <h3><%= product.productId.price%> SEK</h3>
                     </div>
                     <div class="col-12">
-                        <a href="/deletewishlist/<%=product.productId._id%>">Delete from my wishlist</a>
+                        <a href="/deleteorderlist/<%=product.productId._id%>">Delete from my orderlist</a>
                         <%}else{%>
                         "product is not in store"
                         <%}%> 
@@ -37,10 +37,8 @@
 <% }) %>
 
 
+                        <a href="/order"><button>Checkout</button></a>
 
-
-                        <!-- order router -> renderar vi checkout.ejs -> stripe hemsita (där användare ska mata in info)
--> nästa router (kan vara success eller avbryt) -->
 
 
 

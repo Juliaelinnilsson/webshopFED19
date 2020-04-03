@@ -1,5 +1,5 @@
-const mongoose          = require("mongoose");
-const Schema            = require("mongoose").Schema;
+const mongoose = require("mongoose");
+const Schema = require("mongoose").Schema;
 
 const userSchema = new Schema({
     email: {
@@ -18,6 +18,12 @@ const userSchema = new Schema({
     resetToken: String,
     expirationToken: Date,
     wishlist: [{
+        productId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Product"
+        }
+    }],
+    orderlist: [{
         productId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Product"
@@ -45,6 +51,30 @@ userSchema.methods.removeFromList = function (productId) {
             productId.toString()
     })
     this.wishlist = remainingWishlistProducts;
+    return this.save()
+};
+
+
+userSchema.methods.addToOrderlist = function (product) {
+    this.orderlist.push({
+        productId: product._id
+    })
+    const neworderlist = this.orderlist.filter(function ({
+        productId
+    }) {
+        return !this.has(`${productId}`) && this.add(`${productId}`)
+
+    }, new Set)
+    this.orderlist = [...neworderlist]
+    return this.save()
+}
+
+userSchema.methods.removeFromList = function (productId) {
+    const remainingOrderlistProducts = this.orderlist.filter((product) => {
+        return product.productId.toString() !==
+            productId.toString()
+    })
+    this.orderlist = remainingOrderlistProducts;
     return this.save()
 };
 
