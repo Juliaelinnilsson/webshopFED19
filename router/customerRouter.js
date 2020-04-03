@@ -208,13 +208,13 @@ router.get(userROUTE.orderlist, verifyToken, async (req, res) => {
         }),
         // :// = efter http  
         //req.get("Host") = localhost eller heroku etc
-        //success_url: req.protocol + "://" + req.get("Host") + "/",
-        //cancel_url: "http://localhost:8003/products"
+        success_url: req.protocol + "://" + req.get("Host") + "/orderconfirmation",
+        cancel_url: "http://localhost:8003/products"
 
 
         // skriv in heroku adresserna
-        success_url: 'http://localhost:8003/orderconfirmation', //vilken sida man ska skickas till vid köp
-        cancel_url: "http://localhost:8003/product" // vilken sida man ska skickas till vad misslyckat köp 
+        //success_url: 'http://localhost:8003/orderconfirmation', //vilken sida man ska skickas till vid köp
+        // cancel_url: "http://localhost:8003/product" // vilken sida man ska skickas till vad misslyckat köp 
     }).then((session) => {
         res.render(userVIEW.orderlist, { user, sessionId: session.id })
     })
