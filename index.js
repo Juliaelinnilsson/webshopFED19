@@ -6,8 +6,7 @@ const Admin = require("./router/adminRouter");
 const path = require("path");
 const cookieparser = require("cookie-parser");
 const config = require("../config/config")
-// const env = require("dotenv").config({ path: "/.env" });
-// const stripe = require('stripe')(process.env.SECRETKEY);
+
 const app = express();
 
 app.use(cookieparser());
