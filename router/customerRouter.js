@@ -8,7 +8,7 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const verifyToken = require("./verifyToken");
 const sendGridTransport = require("nodemailer-sendgrid-transport");
-// const config = require("../config/config")
+const config = require("../config/config")
 // require("dotenv").config({ path: "/.env" });
 
 const stripe = require('stripe')(process.env.SECRETKEY);
