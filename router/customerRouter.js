@@ -51,7 +51,8 @@ const userROUTE = {
     orderlist: "/orderlist",
     orderlistid: "/orderlist/:id",
     deleteorderlist: "/deleteorderlist/:id",
-    order: '/order'
+    order: '/order',
+    orderconfirmation: "/orderconfirmation"
 };
 
 const userVIEW = {
@@ -69,7 +70,8 @@ const userVIEW = {
     resetform: "resetform",
     wishlist: "wishlist",
     orderlist: "orderlist",
-    prodgenerator: "/partial/prodgenerator"
+    prodgenerator: "/partial/prodgenerator",
+    orderconfirmation: "orderconfirmation"
 };
 
 // customer main \\
@@ -194,29 +196,6 @@ router.get(userROUTE.deletewishlist, verifyToken, async (req, res) => {
 router.get(userROUTE.orderlist, verifyToken, async (req, res) => {
     const user = await User.findOne({ _id: req.body.user._id }).populate("orderlist.productId")
 
-    res.render(userVIEW.orderlist, { user });
-});
-
-router.get(userROUTE.orderlistid, verifyToken, async (req, res) => {
-    const product = await productItem.findOne({ _id: req.params.id })
-    const user = await User.findOne({ _id: req.body.user._id })
-
-    await user.addToOrderlist(product)
-    res.redirect(userROUTE.orderlist);
-});
-
-router.get(userROUTE.deleteorderlist, verifyToken, async (req, res) => {
-    const user = await User.findOne({ _id: req.body.user._id })
-    console.log(user)
-    user.removeFromList(req.params.id)
-    res.redirect(userROUTE.orderlist);
-});
-
-//order checkout\\
-
-router.get(userROUTE.order, verifyToken, async (req, res) => {
-    const user = await User.findOne({ _id: req.body.user._id }).populate("orderlist.productId")
-
     return stripe.checkout.sessions.create({
         payment_method_types: ["card"],
         line_items: user.orderlist.map((product) => {
@@ -234,15 +213,32 @@ router.get(userROUTE.order, verifyToken, async (req, res) => {
 
 
         // skriv in heroku adresserna
-        success_url: 'http://localhost:8003', //vilken sida man ska skickas till vid köp
+        success_url: 'http://localhost:8003/orderconfirmation', //vilken sida man ska skickas till vid köp
         cancel_url: "http://localhost:8003/product" // vilken sida man ska skickas till vad misslyckat köp 
     }).then((session) => {
-        res.render(userVIEW.checkout, { user, sessionId: session.id })
+        res.render(userVIEW.orderlist, { user, sessionId: session.id })
     })
-
 });
 
+router.get(userROUTE.orderlistid, verifyToken, async (req, res) => {
+    const product = await productItem.findOne({ _id: req.params.id })
+    const user = await User.findOne({ _id: req.body.user._id })
 
+    await user.addToOrderlist(product)
+    res.redirect(userROUTE.orderlist);
+});
+
+router.get(userROUTE.deleteorderlist, verifyToken, async (req, res) => {
+    const user = await User.findOne({ _id: req.body.user._id })
+    console.log(user)
+    user.removeFromList(req.params.id)
+    res.redirect(userROUTE.orderlist);
+});
+
+// order confirmation \\
+router.get(userROUTE.orderconfirmation, (req, res) => {
+    res.render(userVIEW.orderconfirmation);
+});
 
 // customer settings \\
 router.get(userROUTE.settings, (req, res) => {
